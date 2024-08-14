@@ -9,7 +9,7 @@ export default function App() {
     return (
         <div className='main-container'>
             <Header />
-            <CreateForm list={array}/>
+            <CreateForm coinArray={array}/>
             <Footer />
         </div>
     )

@@ -8,7 +8,6 @@
 
 
 
-
 .navbar {
     padding: 10px 15px;
 }
@@ -22,7 +21,6 @@
     left: 100px;
     color: black;
 }
-
 
 
 
@@ -50,6 +48,14 @@
     justify-content: space-between;
     margin-bottom: 20px;
 }
+
+
+.paging {
+    position: relative;
+    right: 10px;
+    margin-bottom: 30px;
+}
+
 
 
 
