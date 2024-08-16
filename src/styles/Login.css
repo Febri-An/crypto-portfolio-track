@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+.login-container {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Poppins", sans-serif;
+    color: white;
+    background: url('../assets/background.jpg') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+
+
+.login-container .login-box {
+    width: 420px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    backdrop-filter: blur(25px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    color: white;
+    border-radius: 10px;
+    padding: 30px 40px;
+}
+
+.login-box h1 {
+    font-size: 36px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.login-box .input-box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin-top: 30px;
+}
+
+.input-box input {
+    width: 100%;
+    height: 50px;
+    margin-bottom: 30px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    outline: none;
+    border-radius: 40px;
+    font-size: 16px;
+    color: white;
+    padding: 20px 40px 20px 20px;
+    
+}
+
+.input-box input::placeholder {
+    color: white;
+}
+
+.input-box .icon {
+    position: absolute;
+    right: 20px;
+    margin-top: 16px;
+    font-size: 16px;
+}
+
+
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14.5px;
+    margin: -15px 0 15px;
+}
+
+.remember-forgot label input {
+    accent-color: white;
+    margin-right: 4px;
+}
+
+.remember-forgot a {
+    color: white;
+    text-decoration: none;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline;
+}
+
+
+
+.login-box button {
+    width: 100%;
+    height: 45px;
+    outline: none;
+    border: none;
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    cursor: pointer;
+}
+
+
+
+.login-box .signup-link {
+    font-size: 14.5px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.signup-link p a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.signup-link p a:hover {
+    text-decoration: underline;
+}
