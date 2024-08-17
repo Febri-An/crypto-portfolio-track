@@ -9,7 +9,7 @@ export default function Header() {
     };
     return (
         <nav className="navbar bg-dark border-bottom border-body sticky-top" data-bs-theme="dark">
-            <a className="navbar-brand" href="/crypto-portfolio-track">Crypto Checker</a>
+            <a className="navbar-brand" href="/crypto-portfolio-track"><span>Crypto </span>Tracker</a>
             <button className="btn btn-outline-light" type="submit" onClick={goLogin}>Login</button>
         </nav>
 

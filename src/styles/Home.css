@@ -11,6 +11,10 @@
     font-weight: bold;
 }
 
+.navbar .navbar-brand span {
+    color: orange;
+}
+
 .page-link {
     left: 100px;
     color: black;
