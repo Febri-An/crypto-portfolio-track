@@ -1,5 +1,5 @@
 export default function List() {
-    const coins = [
+    return [
         "AAC",
         "ABBC",
         "ABL",
@@ -993,5 +993,4 @@ export default function List() {
         "ZRC",
         "ZRX",
         "ZXC"]
-        return (coins)
     }
