@@ -136,20 +136,18 @@ export default function CreateForm({ coinArray }) {
                         onClick={() => { if (currentPage !== totalPage) {setCurrentPage(prevValue => prevValue+1)}}}>Next</button>
                 </div>
 
-                <div className="input-group mb-3 search-container">
+                <div className="input-group mb-3 search">
                     <label className="input-group-text grey-bg" htmlFor="inputGroupSelect01">Ticker</label>
                     <div className="search-box">
                         <input type="text" className="search-form" placeholder="Search" name="symbol" 
                             value={input[sliceIndex].symbol} 
-                            onClick={() => setIsDeleted(false)} 
+                            onClick={() => setIsDeleted(false)}
                             onChange={handleChange}
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"/>
-                        <button className="search-btn" disabled>
-                            <SearchIcon />
-                        </button>
+                        <label className="icon"><SearchIcon /></label>
                         { isDeleted ? null : (
-                            <ul className="result">
-                                {searchResult.map((ticker, index) => <li onClick={resultClicked} key={index}>{ticker}</li>)}
+                            <ul className="result-box">
+                                {searchResult.slice(0, 10).map((ticker, index) => <li onClick={resultClicked} key={index}>{ticker}</li>)}
                             </ul>
                         )}
                     </div>
@@ -169,7 +167,7 @@ export default function CreateForm({ coinArray }) {
                         aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"/>
                 </div>
                 
-                <div className="btn-container">
+                <div className="btn-box">
                     <button type="button" className="btn btn-secondary" 
                         onClick={handleClick}>Execute</button>
                     <button type="button" className="btn btn-secondary"
