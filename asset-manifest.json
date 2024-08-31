@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/crypto-portfolio-track/static/css/main.fdc747c9.css",
+    "main.js": "/crypto-portfolio-track/static/js/main.188d4952.js",
+    "static/media/background.jpg": "/crypto-portfolio-track/static/media/background.88803f0e7fd174860758.jpg",
+    "index.html": "/crypto-portfolio-track/index.html",
+    "main.fdc747c9.css.map": "/crypto-portfolio-track/static/css/main.fdc747c9.css.map",
+    "main.188d4952.js.map": "/crypto-portfolio-track/static/js/main.188d4952.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fdc747c9.css",
+    "static/js/main.188d4952.js"
+  ]
+}
