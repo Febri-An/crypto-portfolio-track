@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import PnlBox from './PnlBox'
+import Button from './Button'
+import Input from "./Input";
 import Pagination from "./Pagination";
-import SearchIcon from '@mui/icons-material/Search';
+import Dropdown from "./Dropdown";  
 
-export default function CreateForm({ coinArray }) {
+export default function CreateForm({ coinArray, currArray }) {
     const apikey = process.env.REACT_APP_COINLIB_APIKEY
+    const currName = currArray.map(item => item.name)
 
     const [input, setInput] = useState([{
         symbol: '',
@@ -17,6 +20,11 @@ export default function CreateForm({ coinArray }) {
         percent: ''
     })
 
+    const [currency, setCurrency] = useState({
+        name: 'USD',
+        symbol: '$'
+    })
+
     const [pageNum, setPageNum] = useState([1]) // pagination
     const [totalPage, setTotalPage] = useState(1)
 
@@ -27,7 +35,7 @@ export default function CreateForm({ coinArray }) {
     }, [currentPage])
 
 
-    function handleChange(event) { //for symbol, avg.buy, and num
+    function handleChange(event) { //for symbol, avg.buy, num
         const {name, value} = event.target;
         const updateInput = [...input]
         updateInput[sliceIndex] = { 
@@ -37,6 +45,7 @@ export default function CreateForm({ coinArray }) {
         setInput(updateInput)
     }
 
+     // responsive coin search
     const [searchResult, setSearchResult] = useState([])
     useEffect(() => {
         const symbol = input[sliceIndex].symbol.toUpperCase()
@@ -45,57 +54,84 @@ export default function CreateForm({ coinArray }) {
     }, [input[sliceIndex].symbol])
 
 
-    const [isDeleted, setIsDeleted] = useState(true) // delete search result
+    const [isDeleted, setIsDeleted] = useState({    // delete search result clicked
+        symbol: true,
+        curr: true
+    }) 
     function resultClicked(event) {
+        const name = event.target.getAttribute('data-name')
+        const key = event.target.getAttribute('data-key')
         const newSymbol = event.target.textContent
+        // console.log(name, key, newSymbol)
         const updateInput = [...input]
-        updateInput[sliceIndex] = {
-            ...updateInput[sliceIndex],
-            symbol: newSymbol
+        
+        if (name === "symbol") {
+            updateInput[sliceIndex] = {
+                ...updateInput[sliceIndex],
+                [name]: newSymbol
+            }
+            setInput(updateInput)
+            
+        } else if (name === "curr") {
+            setCurrency({
+                    name: newSymbol,
+                    symbol: currArray[key].symbol   /////// 
+            })
+            execute()
         }
-        setInput(updateInput)
-        setIsDeleted(true)
+
+        setIsDeleted(prevValue => {
+            return {
+                ...prevValue,
+                [name]: true
+            }
+        })
     }
 
     
     const [clicked, setClicked] = useState(0) // for execute button
     useEffect(() => {
         if (clicked >= 1) {
-            async function fetchData() {
-                try {
-                    const results = await Promise.all(input.map( async (item) => {
-                        const response = await fetch(`/api/v1/coin?key=${apikey}&pref=USD&symbol=${item.symbol}`)
-                        if (!response.ok) {
-                            throw new Error(`Error fetching data: ${response.statusText}`)
-                        }
-                        const data = await response.json()
-                        return {
-                            dollars: ((data.price - item.avg) * item.num).toFixed(2),
-                            avg: item.avg,
-                            num: item.num
-                        } 
-                    }))
-                    let totalGain = 0
-                    let modal = 0 
-                    results.forEach(result => {
-                        totalGain += parseFloat(result.dollars)   
-                        modal += parseFloat(result.avg * result.num)
-                    })
-                    const percent = Math.floor(totalGain / modal * 100)
-                    console.log(`gain: ${totalGain}, modal: ${modal}`)
-                    setPnl({
-                        dolars: totalGain,
-                        percent: percent
-                    })                    
-                } catch (err) {
-                    alert(err.message)
+            const allFilled = input.every(item => Object.values(item).every(value => value !== ''))
+            if (allFilled) {
+                async function fetchData() {
+                    try {
+                        const results = await Promise.all(input.map( async (item) => {
+                            const response = await fetch(`/api/v1/coin?key=${apikey}&pref=${currency.name}&symbol=${item.symbol}`)
+                            if (!response.ok) {
+                                throw new Error(`Error fetching data: ${response.statusText}`)
+                            }
+                            const data = await response.json()
+                            return {
+                                dollars: ((data.price - item.avg) * item.num).toFixed(2),
+                                avg: item.avg,
+                                num: item.num
+                            } 
+                        }))
+                        let totalGain = 0
+                        let modal = 0 
+                        results.forEach(result => {
+                            totalGain += parseFloat(result.dollars)   
+                            modal += parseFloat(result.avg * result.num)
+                        })
+                        const percent = Math.floor(totalGain / modal * 100)
+                        // console.log(`gain dollars: ${totalGain} ${typeof(totalGain)} percent: ${percent} ${typeof(percent)}`)
+                        setPnl({
+                            dolars: totalGain,
+                            percent: percent
+                        })
+                    } catch (err) {
+                        alert(err.message)
+                    }
                 }
+                fetchData()
+            } else {
+                alert('Please fill all fields')
             }
-            fetchData()
         }
     }, [clicked]);
 
-    function handleClick() {
+    function execute() {
         setClicked(prevValue => prevValue + 1)
     }
 
@@ -125,61 +161,95 @@ export default function CreateForm({ coinArray }) {
         <div className="form-container row">
 
             <div className="left-form">
-
+                
                 <div className="btn-group paging" role="group" aria-label="Basic outlined example">
-                    <button type="button" className="btn btn-outline-secondary"
-                        onClick={() => { if (currentPage > 1) {setCurrentPage(prevValue => prevValue-1)}}}>Previous</button>
-
+                    <Button 
+                        addClass={"btn-outline-secondary"}
+                        handleClick={() => { if (currentPage > 1) {setCurrentPage(prevValue => prevValue-1)}}}
+                        content={'Previous'}/>
+            
                     { pageNum.map((number, index) => <Pagination key={index} page={number} currentPage={currentPage} setCurrentPage={setCurrentPage}/>) }
 
-                    <button type="button" className="btn btn-outline-secondary"
-                        onClick={() => { if (currentPage !== totalPage) {setCurrentPage(prevValue => prevValue+1)}}}>Next</button>
+                    <Button
+                        addClass={"btn-outline-secondary"}
+                        handleClick={() => { if (currentPage !== totalPage) {setCurrentPage(prevValue => prevValue+1)}}}
+                        content={'Next'}/>
                 </div>
 
-                <div className="input-group mb-3 search">
-                    <label className="input-group-text grey-bg" htmlFor="inputGroupSelect01">Ticker</label>
-                    <div className="search-box">
-                        <input type="text" className="search-form" placeholder="Search" name="symbol" 
-                            value={input[sliceIndex].symbol} 
-                            onClick={() => setIsDeleted(false)}
-                            onChange={handleChange}
-                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"/>
-                        <label className="icon"><SearchIcon /></label>
-                        { isDeleted ? null : (
-                            <ul className="result-box">
-                                {searchResult.slice(0, 10).map((ticker, index) => <li onClick={resultClicked} key={index}>{ticker}</li>)}
-                            </ul>
-                        )}
-                    </div>
-                </div>
-                <div className="input-group mb-3">
-                    <span className="input-group-text" id="inputGroup-sizing-default">Avg. Buy</span>
-                    <input type="text" className="form-control" placeholder="$" name="avg" 
-                        value={input[sliceIndex].avg} 
-                        onChange={handleChange}
-                        aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"/>
-                </div>
-                <div className="input-group mb-3">
-                    <span className="input-group-text" id="inputGroup-sizing-default">Amount</span>
-                    <input type="text" className="form-control" placeholder="0" name="num" 
-                        value={input[sliceIndex].num} 
-                        onChange={handleChange} 
-                        aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"/>
-                </div>
+                <Dropdown 
+                    labelContent={"Ticker"}
+                    dropdownType={"input"}
+                    placeholder={"Search"}
+                    name={"symbol"}
+                    handleClick={() => setIsDeleted(prevValue => {
+                        return {
+                            ...prevValue,
+                            symbol: false
+                        }
+                    })}
+                    handleChange={handleChange}
+                    content={input[sliceIndex].symbol}
+                    isDeleted={isDeleted.symbol}
+                    array={searchResult}
+                    sliceStart={0}
+                    sliceEnd={10}
+                    resultName={"symbol"}
+                    resultClick={resultClicked}
+                    />
+                
+                <Input
+                    spanContent={"Avg. Buy"}
+                    placeholder={"$"}
+                    name={"avg"}
+                    handleChange={handleChange}
+                    content={input[sliceIndex].avg}/>
+
+                <Dropdown 
+                    labelContent={"Fiat"}
+                    dropdownType={"button"}
+                    placeholder={"USD"}
+                    name={"curr"}
+                    handleClick={() => setIsDeleted(prevValue => {
+                        return {
+                            ...prevValue,
+                            curr: false
+                        }
+                    })}
+                    content={currency.name}
+                    isDeleted={isDeleted.curr}
+                    array={currName}
+                    resultName={"curr"}
+                    resultClick={resultClicked}
+                    />
+
+                <Input 
+                    spanContent={"Amount"}
+                    placeholder={"0"}
+                    name={"num"}
+                    handleChange={handleChange}
+                    content={input[sliceIndex].num}/>
                 
                 <div className="btn-box">
-                    <button type="button" className="btn btn-secondary" 
-                        onClick={handleClick}>Execute</button>
-                    <button type="button" className="btn btn-secondary"
-                        onClick={addPage}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
-                            <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-                        </svg>
-                    </button>
+                    <Button 
+                        addClass={"btn-secondary"}
+                        handleClick={execute}
+                        content={'Execute'}/>
+                    <Button 
+                        addClass={"btn-secondary"}
+                        handleClick={addPage}
+                        content={(
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                            </svg>
+                        )} />
                 </div>
             </div>
 
-            <PnlBox dolars={pnl.dolars} percent={pnl.percent}/>
+            <div className="right-form">
+
+                <PnlBox dolars={pnl.dolars} currSymbol={currency.symbol} percent={pnl.percent}/>
+            
+            </div>
 
         </div>       
     )
