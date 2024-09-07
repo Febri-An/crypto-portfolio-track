@@ -1,0 +1,52 @@
+/* general */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.no-border {
+    border: none;
+}
+
+
+/* Header */
+.main-container .navbar {
+    padding: 10px 15px;
+}
+
+.navbar .navbar-brand {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.navbar .navbar-brand span {
+    color: orange;
+}
+
+.navbar .link-bar {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+}
+
+.link-bar .btn-link {
+    text-decoration: none;
+    color: white;
+}
+
+.link-bar .btn-link:hover {
+    color: #999999;
+}
+
+
+/* main */
+.main-container main {
+    flex: 1;
+}
+
+
+/* Footer */
+.main-container footer {
+    align-self: center;
+}
