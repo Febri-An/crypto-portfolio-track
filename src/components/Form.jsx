@@ -77,7 +77,6 @@ export default function CreateForm({ coinArray, currArray }) {
                     name: newSymbol,
                     symbol: currArray[key].symbol   /////// 
             })
-            execute()
         }
 
         setIsDeleted(prevValue => {
