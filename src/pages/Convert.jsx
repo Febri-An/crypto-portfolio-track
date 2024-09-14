@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import Header from '../components/Header';
 import Footer from '../components/Footer'
 import Input from '../components/Input'
-import CoinList from '../components/CoinList';
+import CoinList from '../data/CoinList';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';

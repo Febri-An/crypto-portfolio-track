@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import Form from '../components/Form';
 import Footer from '../components/Footer'
-import CoinList from '../components/CoinList';
-import CurrList from '../components/CurrList';
+import CoinList from '../data/CoinList';
+import CurrList from '../data/CurrList';
 import '../styles/Home.css'
 
 export default function Home() {
