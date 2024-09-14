@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 .login-container {
+    position: relative;
     margin: 0;
     height: 100vh;
     display: flex;
@@ -13,6 +14,10 @@
     background-position: center;
 }
 
+.login-container .alert {
+    position: absolute;
+    top: 15px;
+}
 
 
 .login-container .login-box {
