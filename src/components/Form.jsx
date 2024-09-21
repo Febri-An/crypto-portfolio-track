@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useLocation } from 'react-router-dom';
 import PnlBox from './PnlBox'
 import Button from './Button'
 import Input from "./Input";
@@ -8,6 +9,10 @@ import Dropdown from "./Dropdown";
 export default function CreateForm({ coinArray, currArray }) {
     const apikey = process.env.REACT_APP_COINLIB_APIKEY
     const currName = currArray.map(item => item.name)
+
+    const location = useLocation()
+    const dataInject = location.state?.body.data || [] // array
+    
 
     const [input, setInput] = useState([{
         symbol: '',
@@ -121,6 +126,25 @@ export default function CreateForm({ coinArray, currArray }) {
                         })
                     } catch (err) {
                         alert(err.message)
+                    } finally {
+                        // console.log('input \n', input)
+                        if (dataInject) {
+                            let newValues = input.map((item, index) => 
+                                // user_id, page, symbol, average, amount
+                                `(${dataInject[0].user_id}, ${index+1}, '${item.symbol}', ${parseFloat(item.avg)}, ${parseFloat(item.num)})`).join(', ');
+                                
+                            await fetch('http://localhost:3001/set-crypto', {
+                                method: 'PATCH',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({
+                                    b: dataInject[0].user_id,
+                                    data: newValues
+                                  })
+                            })
+                        }
+
                     }
                 }
                 fetchData()
@@ -136,12 +160,12 @@ export default function CreateForm({ coinArray, currArray }) {
 
 
     function addPage() {    // for add button
-        setTotalPage(prevValue => prevValue+1)
+        setTotalPage(prevValue => prevValue + 1)
         setPageNum(prevValue => {
-            const nextNum = pageNum.length + 1
+            const nextNum = prevValue.length + 1
             return [...prevValue, nextNum]
         })
-        setCurrentPage(totalPage+1)
+        setCurrentPage(prevTotalPage => prevTotalPage + 1)
         setInput(prevValue => {
             return [
                 ...prevValue,
@@ -153,6 +177,32 @@ export default function CreateForm({ coinArray, currArray }) {
             ]
         })
     }
+
+    const hasRun = useRef(false);
+
+    useEffect(() => {
+        if (!hasRun.current) {
+            // console.log('loading')
+            for (let i = 1; i < dataInject.length; i++) { // add page of the length of the inject data. except:1
+                addPage()
+            }
+
+            if (dataInject) { // data provided ?
+                let newInput = [...input]
+                dataInject.forEach(item => {
+                    const pageIndex = item.page-1   
+                    newInput[pageIndex] = {
+                        symbol: item.symbol,
+                        avg: item.average,
+                        num: item.amount
+                    }
+                })
+                setInput(newInput)
+            }
+        
+            hasRun.current = true;
+        }
+    }, []);
 
 
 

@@ -5,7 +5,10 @@ import { FaUser, FaLock } from "react-icons/fa";
 import '../styles/Login.css'
 
 export default function Login() {
-  const [isCorrect, setIsCorrect] = useState(null)
+  const [isCorrect, setIsCorrect] = useState({
+    status: null,
+    message: ''
+  })
 
   const nameRef = useRef(null)
   const passRef = useRef(null)
@@ -16,7 +19,7 @@ export default function Login() {
     const username = nameRef.current.value
     const password = passRef.current.value
 
-    const response = await fetch('http://localhost:3001/users-data', {
+    const response = await fetch('http://localhost:3001/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -26,23 +29,25 @@ export default function Login() {
         password: password
       })
     });
-    const data = await response.json()
+    const result = await response.json()
 
-    if (data.length !== 0) {
-      navigate('/')
-      setIsCorrect(true)
-    } else {
-      setIsCorrect(false)
+    if (result.error) {
+      setIsCorrect({
+        status: false,
+        message: result.error
+      })
+    }
+    else {
+      setIsCorrect({
+        status: true,
+        message: username 
+      })
+      navigate('/', { state: { body: result } })
     }
   }
 
   return (
     <div className="login-container">
-      { isCorrect ? 
-        (<Alert className='alert' severity="success">Login successful! Welcome back.</Alert>)
-        : isCorrect === false ? (<Alert className='alert' severity="error">Login failed. Please check your credentials and try again.</Alert>)
-        : null
-      }
 
       <div className="login-box">
         <h1>Login</h1>
