@@ -34,17 +34,32 @@ export default function CreateForm({ coinArray, currArray }) {
     const [totalPage, setTotalPage] = useState(1)
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [sliceIndex, setSliceIndex] = useState(0)
-    useEffect(() => {
-        setSliceIndex(currentPage-1)
-    }, [currentPage])
 
+    function deletePage(event, page) {
+        event.stopPropagation()
+        
+        setTotalPage(prevValue => prevValue -1) // total page -1 
+        
+        const updatePageNum = pageNum // delete & update pageNum, ex: [1,'2',3,4] -> [1,2,3]
+            .filter(num => num !== page)
+            .map(num => num > page ? num - 1 : num)
+        setPageNum(updatePageNum)
+
+        const updatedInput = [...input]; // delete an item form input array
+        updatedInput.splice(page - 1, 1);
+        setInput(updatedInput);
+        
+        if (currentPage >= page) {
+            console.log(true)
+            setCurrentPage(prevValue => prevValue - 1)
+        } 
+    }
 
     function handleChange(event) { //for symbol, avg.buy, num
         const {name, value} = event.target;
         const updateInput = [...input]
-        updateInput[sliceIndex] = { 
-            ...updateInput[sliceIndex], 
+        updateInput[currentPage-1] = { 
+            ...updateInput[currentPage-1], 
             [name]: value
         }
         setInput(updateInput)
@@ -53,10 +68,10 @@ export default function CreateForm({ coinArray, currArray }) {
      // responsive coin search
     const [searchResult, setSearchResult] = useState([])
     useEffect(() => {
-        const symbol = input[sliceIndex].symbol.toUpperCase()
+        const symbol = input[currentPage-1].symbol.toUpperCase()
         const newResult = coinArray.filter(ticker => ticker.includes(symbol))
         setSearchResult(newResult)
-    }, [input[sliceIndex].symbol])
+    }, [input[currentPage-1].symbol])
 
 
     const [isDeleted, setIsDeleted] = useState({    // delete search result clicked
@@ -71,8 +86,8 @@ export default function CreateForm({ coinArray, currArray }) {
         const updateInput = [...input]
         
         if (name === "symbol") {
-            updateInput[sliceIndex] = {
-                ...updateInput[sliceIndex],
+            updateInput[currentPage-1] = {
+                ...updateInput[currentPage-1],
                 [name]: newSymbol
             }
             setInput(updateInput)
@@ -217,7 +232,7 @@ export default function CreateForm({ coinArray, currArray }) {
                         handleClick={() => { if (currentPage > 1) {setCurrentPage(prevValue => prevValue-1)}}}
                         content={'Previous'}/>
             
-                    { pageNum.map((number, index) => <Pagination key={index} page={number} currentPage={currentPage} setCurrentPage={setCurrentPage}/>) }
+                    { pageNum.map((number, index) => <Pagination key={index} page={number} currentPage={currentPage} setCurrentPage={setCurrentPage} deletePage={deletePage}/>) }
 
                     <Button
                         addClass={"btn-outline-secondary"}
@@ -237,7 +252,7 @@ export default function CreateForm({ coinArray, currArray }) {
                         }
                     })}
                     handleChange={handleChange}
-                    content={input[sliceIndex].symbol}
+                    content={input[currentPage-1].symbol}
                     isDeleted={isDeleted.symbol}
                     array={searchResult}
                     sliceStart={0}
@@ -251,7 +266,7 @@ export default function CreateForm({ coinArray, currArray }) {
                     placeholder={"$"}
                     name={"avg"}
                     handleChange={handleChange}
-                    content={input[sliceIndex].avg}/>
+                    content={input[currentPage-1].avg}/>
 
                 <Dropdown 
                     labelContent={"Fiat"}
@@ -276,7 +291,7 @@ export default function CreateForm({ coinArray, currArray }) {
                     placeholder={"0"}
                     name={"num"}
                     handleChange={handleChange}
-                    content={input[sliceIndex].num}/>
+                    content={input[currentPage-1].num}/>
                 
                 <div className="btn-box">
                     <Button 

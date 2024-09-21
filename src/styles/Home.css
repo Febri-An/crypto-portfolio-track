@@ -28,6 +28,25 @@
     margin-bottom: 30px;
 }
 
+.paging .delete-page {
+    position: absolute;
+    font-size: 10px;
+    top: -1.5px;
+    right: -1.5px;
+    height: 15px;
+    width: 15px;
+    border: none;
+    color: transparent;
+    background-color: transparent;
+    transition: 0.3s ease;
+}
+
+.paging .delete-page:hover {
+    color: #6c757d;
+    background-color: rgba(255, 255, 255, 0.8) ;
+    border-radius: 50%;
+}
+
 .search .search-box {
     flex: 1;
     position: relative;
