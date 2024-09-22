@@ -168,7 +168,7 @@ export default function CreateForm({ coinArray, currArray }) {
                                     'Content-Type': 'application/json'
                                   },
                                   body: JSON.stringify({
-                                    b: dataInject[0].user_id,
+                                    user_id: dataInject[0].user_id,
                                     data: newValues
                                   })
                             })
