@@ -35,7 +35,7 @@ export default function CreateForm({ coinArray, currArray }) {
 
     const [currentPage, setCurrentPage] = useState(1)
 
-    function deletePage(event, page) {
+    async function deletePage(event, page) {
         event.stopPropagation()
         
         setTotalPage(prevValue => prevValue -1) // total page -1 
@@ -53,6 +53,19 @@ export default function CreateForm({ coinArray, currArray }) {
             console.log(true)
             setCurrentPage(prevValue => prevValue - 1)
         } 
+
+        if (dataInject) {
+            await fetch('http://localhost:3001/delete-crypto', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: dataInject[0].user_id,
+                    page: page
+                })
+            })
+        }
     }
 
     function handleChange(event) { //for symbol, avg.buy, num
@@ -148,6 +161,7 @@ export default function CreateForm({ coinArray, currArray }) {
                                 // user_id, page, symbol, average, amount
                                 `(${dataInject[0].user_id}, ${index+1}, '${item.symbol}', ${parseFloat(item.avg)}, ${parseFloat(item.num)})`).join(', ');
                                 
+                            console.log('set crypto on procces')
                             await fetch('http://localhost:3001/set-crypto', {
                                 method: 'PATCH',
                                 headers: {
