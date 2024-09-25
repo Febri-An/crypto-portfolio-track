@@ -42,12 +42,20 @@ export default function Login() {
         status: true,
         message: username 
       })
-      navigate('/', { state: { body: result } })
+      navigate('/', { state: { username: username, body: result } })
     }
   }
 
   return (
     <div className="login-container">
+
+      { 
+        isCorrect.status !== null && (
+          <Alert className="alert" severity={isCorrect.status === true ? "success" : "error"}>
+            {isCorrect.message}.
+          </Alert>
+        )
+      }
 
       <div className="login-box">
         <h1>Login</h1>
