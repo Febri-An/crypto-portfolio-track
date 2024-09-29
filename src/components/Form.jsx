@@ -55,7 +55,7 @@ export default function CreateForm({ coinArray, currArray }) {
         } 
 
         if (dataInject) {
-            await fetch('http://localhost:3001/delete-crypto', {
+            await fetch('http://localhost:5000/delete-crypto', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -162,7 +162,7 @@ export default function CreateForm({ coinArray, currArray }) {
                                 `(${dataInject[0].user_id}, ${index+1}, '${item.symbol}', ${parseFloat(item.avg)}, ${parseFloat(item.num)})`).join(', ');
                                 
                             console.log('set crypto on procces')
-                            await fetch('http://localhost:3001/set-crypto', {
+                            await fetch('http://localhost:5000/set-crypto', {
                                 method: 'PATCH',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -211,12 +211,13 @@ export default function CreateForm({ coinArray, currArray }) {
 
     useEffect(() => {
         if (!hasRun.current) {
-            // console.log('loading')
-            for (let i = 1; i < dataInject.length; i++) { // add page of the length of the inject data. except:1
-                addPage()
-            }
 
-            if (dataInject) { // data provided ?
+            if (dataInject && dataInject.length !== 0 && dataInject[0].page) { // data provided by login or signup ?
+                
+                for (let i = 1; i < dataInject.length; i++) { // add page of the length of the inject data. except:1
+                    addPage()
+                }
+
                 let newInput = [...input]
                 dataInject.forEach(item => {
                     const pageIndex = item.page-1   

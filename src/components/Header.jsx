@@ -1,8 +1,11 @@
-import React from "react";
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function Header() {
     const navigate = useNavigate();
+
+    const location = useLocation()
+    const dataInject = location.state?.body.data  || [{ username: 'Login' }]
 
     function goLink(event) {
         const { name } = event.target
@@ -15,7 +18,7 @@ export default function Header() {
             <div className="link-bar">
                 <button className="btn btn-link" type="submit" name=''  onClick={goLink}>Home</button>
                 <button className="btn btn-link" type="submit" name='convert'  onClick={goLink}>Convert</button>
-                <button className="btn btn-outline-light" type="submit" name='login' onClick={goLink}>Login</button>
+                <button className="btn btn-outline-light" type="submit" name='login' onClick={goLink}>{dataInject[0].username}</button>
             </div>
         </nav>
 

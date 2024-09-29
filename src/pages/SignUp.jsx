@@ -24,7 +24,7 @@ export default function Login() {
   }
 
   async function handleClick() {
-    const response = await fetch(`http://localhost:3001/register`, {
+    const response = await fetch(`http://localhost:5000/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -35,10 +35,11 @@ export default function Login() {
         email: info.email
       })
     })
-    const data = await response.json()
+    const result = await response.json()
+    console.log(result)
 
-    if (!data.error) {
-      navigate('/')
+    if (!result.error) {
+      navigate('/', { state: { username: result.username, body: result } })
     }
   }
 
@@ -49,11 +50,11 @@ export default function Login() {
       <div className="login-box">
         <h1>Register</h1>
         <div className="input-box">
-          <input type="text" name='username' placeholder='Username' onChange={handleChange} required/>
+          <input type="text" name='username' placeholder='Username' value={info.username} onChange={handleChange} required/>
           <FaUser className='icon'/>
-          <input type="password" name='password' placeholder='Password' onChange={handleChange} required/>
+          <input type="password" name='password' placeholder='Password' value={info.password} onChange={handleChange} required/>
           <FaLock className='icon'/>
-          <input type="text" name='email' placeholder='Email' onChange={handleChange} required/>
+          <input type="text" name='email' placeholder='Email' value={info.email} onChange={handleChange} required/>
           <FaEnvelope className='icon'/>
         </div>
         <button onClick={handleClick}>Sign Up</button>
