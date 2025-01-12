@@ -21,6 +21,8 @@
 
 
 .login-container .login-box {
+    display: flex;
+    flex-direction: column;
     width: 420px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, .2);
@@ -62,6 +64,10 @@
     color: white;
 }
 
+.input-box input:nth-last-of-type(1) {
+    margin-bottom: 0;
+}
+
 .input-box .icon {
     position: absolute;
     right: 20px;
@@ -75,7 +81,11 @@
     display: flex;
     justify-content: space-between;
     font-size: 14.5px;
-    margin: -15px 0 15px;
+    margin: 10px 0 15px;
+}
+
+.remember-forgot label {
+    margin: 0;
 }
 
 .remember-forgot label input {
@@ -90,6 +100,11 @@
 
 .remember-forgot a:hover {
     text-decoration: underline;
+}
+
+
+.signup-btn {
+    margin-top: 20px;
 }
 
 
@@ -108,20 +123,38 @@
     cursor: pointer;
 }
 
+.login-box .sign-label {
+    align-self: center;
+    margin: 15px 10px;
+}
 
+.login-box > a {
+    align-self: center;
+    width: 15%;
+    color: white;
+    transition: color 0.3s ease;
+}
 
-.login-box .signup-link {
+.login-box > a:hover {
+    color: gray;
+}
+
+.login-box .sign-link {
     font-size: 14.5px;
     text-align: center;
     margin-top: 20px;
 }
 
-.signup-link p a {
+.sign-link p {
+    margin: 0;
+}
+
+.sign-link p a {
     color: white;
     text-decoration: none;
     font-weight: 600;
 }
 
-.signup-link p a:hover {
+.sign-link p a:hover {
     text-decoration: underline;
 }

@@ -6,12 +6,13 @@ import Input from "./Input";
 import Pagination from "./Pagination";
 import Dropdown from "./Dropdown";  
 
-export default function CreateForm({ coinArray, currArray }) {
+export default function Form({ coinArray, currArray }) {
     const apikey = process.env.REACT_APP_COINLIB_APIKEY
     const currName = currArray.map(item => item.name)
 
     const location = useLocation()
-    const dataInject = location.state?.body.data || [] // array
+    const [dataInject, setDataInject] = useState(location.state?.body.data || []) // array
+    const [googleDataInject, setGoogleDataInject] = useState([])
     
 
     const [input, setInput] = useState([{
@@ -54,14 +55,15 @@ export default function CreateForm({ coinArray, currArray }) {
             setCurrentPage(prevValue => prevValue - 1)
         } 
 
-        if (dataInject) {
+        if (dataInject.length || googleDataInject.length) {
+            const userId = dataInject.length ? dataInject[0].user_id : googleDataInject[0].user_id
             await fetch('http://localhost:5000/delete-crypto', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    user_id: dataInject[0].user_id,
+                    user_id: userId,
                     page: page
                 })
             })
@@ -81,10 +83,13 @@ export default function CreateForm({ coinArray, currArray }) {
      // responsive coin search
     const [searchResult, setSearchResult] = useState([])
     useEffect(() => {
-        const symbol = input[currentPage-1].symbol.toUpperCase()
-        const newResult = coinArray.filter(ticker => ticker.includes(symbol))
-        setSearchResult(newResult)
-    }, [input[currentPage-1].symbol])
+        const currentInput = input[currentPage -1]
+        if (currentInput && currentInput.symbol) {
+            const symbol = input[currentPage-1].symbol.toUpperCase()
+            const newResult = coinArray.filter(ticker => ticker.includes(symbol))
+            setSearchResult(newResult)
+        }
+    }, [input[currentPage-1]?.symbol])
 
 
     const [isDeleted, setIsDeleted] = useState({    // delete search result clicked
@@ -156,10 +161,11 @@ export default function CreateForm({ coinArray, currArray }) {
                         alert(err.message)
                     } finally {
                         // console.log('input \n', input)
-                        if (dataInject && dataInject.length !== 0) {
+                        if (dataInject.length || googleDataInject.length) {
+                            const userId = dataInject.length ? dataInject[0].user_id : googleDataInject[0].user_id
                             let newValues = input.map((item, index) => 
                                 // user_id, page, symbol, average, amount
-                                `(${dataInject[0].user_id}, ${index+1}, '${item.symbol}', ${parseFloat(item.avg)}, ${parseFloat(item.num)})`).join(', ');
+                                `(${userId}, ${index+1}, '${item.symbol}', ${parseFloat(item.avg)}, ${parseFloat(item.num)})`).join(', ');
                                 
                             console.log('set crypto on procces')
                             await fetch('http://localhost:5000/set-crypto', {
@@ -168,7 +174,7 @@ export default function CreateForm({ coinArray, currArray }) {
                                     'Content-Type': 'application/json'
                                   },
                                   body: JSON.stringify({
-                                    user_id: dataInject[0].user_id,
+                                    user_id: userId,
                                     data: newValues
                                   })
                             })
@@ -211,9 +217,36 @@ export default function CreateForm({ coinArray, currArray }) {
 
     useEffect(() => {
         if (!hasRun.current) {
+            async function prepare() {
+                const response = await fetch('http://localhost:5000/get-session', {
+                    credentials: "include"
+                })
+                const result = await response.json()
+                if (Object.keys(result).length !== 0) {
+                    const googleInject = result.body.data
+                    setGoogleDataInject(googleInject)
+                    setDataInject([])
+
+                    for (let i = 1; i < googleInject.length; i++) { // add page of the length of the inject data. except:1
+                        addPage()
+                    }
+    
+                    let newInput = [...input]
+                    googleInject.forEach(item => {
+                        const pageIndex = item.page-1   
+                        newInput[pageIndex] = {
+                            symbol: item.symbol,
+                            avg: item.average,
+                            num: item.amount
+                        }
+                    })
+                    setInput(newInput)
+                }
+            }
+            prepare()
 
             if (dataInject && dataInject.length !== 0 && dataInject[0].page) { // data provided by login or signup ?
-                
+                console.log("data inject processing")
                 for (let i = 1; i < dataInject.length; i++) { // add page of the length of the inject data. except:1
                     addPage()
                 }
@@ -267,7 +300,7 @@ export default function CreateForm({ coinArray, currArray }) {
                         }
                     })}
                     handleChange={handleChange}
-                    content={input[currentPage-1].symbol}
+                    content={input[currentPage-1]?.symbol}
                     isDeleted={isDeleted.symbol}
                     array={searchResult}
                     sliceStart={0}
@@ -281,7 +314,7 @@ export default function CreateForm({ coinArray, currArray }) {
                     placeholder={"$"}
                     name={"avg"}
                     handleChange={handleChange}
-                    content={input[currentPage-1].avg}/>
+                    content={input[currentPage-1]?.avg}/>
 
                 <Dropdown 
                     labelContent={"Fiat"}
@@ -306,7 +339,7 @@ export default function CreateForm({ coinArray, currArray }) {
                     placeholder={"0"}
                     name={"num"}
                     handleChange={handleChange}
-                    content={input[currentPage-1].num}/>
+                    content={input[currentPage-1]?.num}/>
                 
                 <div className="btn-box">
                     <Button 

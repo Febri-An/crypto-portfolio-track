@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import Alert from '@mui/material/Alert';
 import { FaUser, FaLock } from "react-icons/fa";
+import GoogleIcon from '@mui/icons-material/Google';
 import '../styles/Login.css'
 
 export default function Login() {
@@ -46,6 +47,11 @@ export default function Login() {
     }
   }
 
+  function google() {
+    window.open('http://localhost:5000/auth/google', '_self')
+  }  
+
+
   return (
     <div className="login-container">
 
@@ -58,6 +64,7 @@ export default function Login() {
       }
 
       <div className="login-box">
+
         <h1>Login</h1>
         <div className="input-box">
           <input type="text" name='username' placeholder='Username' ref={nameRef} required/>
@@ -65,12 +72,21 @@ export default function Login() {
           <input type="password" name='password' placeholder='Password' ref={passRef} required/>
           <FaLock className='icon'/>
         </div>
+
         <div className="remember-forgot">
           <label><input type="checkbox"/>Remember me</label>
           <a href='#'>Forgot Password?</a>
         </div>
+
         <button onClick={handleClick}>Login</button>
-        <div className="signup-link">
+
+        <label className='sign-label'>~Or Sign In With~</label>
+
+        <a className="btn btn-block" onClick={google} role="button">
+          <GoogleIcon />
+        </a>
+
+        <div className="sign-link">
           <p>Don't have account? <Link to={'/sign-up'}>Sign-up</Link></p>
         </div>
       </div>
