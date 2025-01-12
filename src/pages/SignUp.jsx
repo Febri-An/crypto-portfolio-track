@@ -40,6 +40,8 @@ export default function Login() {
 
     if (!result.error) {
       navigate('/', { state: { username: result.username, body: result } })
+    } else {
+      alert(result.error)
     }
   }
 
