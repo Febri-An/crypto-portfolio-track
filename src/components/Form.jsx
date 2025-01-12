@@ -156,7 +156,7 @@ export default function CreateForm({ coinArray, currArray }) {
                         alert(err.message)
                     } finally {
                         // console.log('input \n', input)
-                        if (dataInject) {
+                        if (dataInject && dataInject.length !== 0) {
                             let newValues = input.map((item, index) => 
                                 // user_id, page, symbol, average, amount
                                 `(${dataInject[0].user_id}, ${index+1}, '${item.symbol}', ${parseFloat(item.avg)}, ${parseFloat(item.num)})`).join(', ');
