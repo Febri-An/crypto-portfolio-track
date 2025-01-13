@@ -7,34 +7,92 @@ import Pagination from "./Pagination";
 import Dropdown from "./Dropdown";  
 
 export default function Form({ coinArray, currArray }) {
-    const apikey = process.env.REACT_APP_COINLIB_APIKEY
-    const currName = currArray.map(item => item.name)
 
+    // data injection
     const location = useLocation()
     const [dataInject, setDataInject] = useState(location.state?.body.data || []) // array
     const [googleDataInject, setGoogleDataInject] = useState([])
     
+    const apikey = process.env.REACT_APP_COINLIB_APIKEY
+    const currName = currArray.map(item => item.name)
+    
+    // pagination
+    const [pageNum, setPageNum] = useState([1]) 
+    const [totalPage, setTotalPage] = useState(1)
+    const [currentPage, setCurrentPage] = useState(1)
+    
+    const [searchResult, setSearchResult] = useState([]) // coins list dropdown
+    const [isDeleted, setIsDeleted] = useState({ // delete search result clicked
+        symbol: true,
+        curr: true
+    }) 
+    const [clicked, setClicked] = useState(0) // for execute button
 
+    // input
     const [input, setInput] = useState([{
         symbol: '',
         avg: '',
         num: ''
     }])
-
     const [pnl, setPnl] = useState({
         dolars: '',
         percent: ''
     })
-
     const [currency, setCurrency] = useState({
         name: 'USD',
         symbol: '$'
     })
 
-    const [pageNum, setPageNum] = useState([1]) // pagination
-    const [totalPage, setTotalPage] = useState(1)
+    const hasRun = useRef(false);
 
-    const [currentPage, setCurrentPage] = useState(1)
+
+    function addPage() {    // for add button
+        setTotalPage(prevValue => prevValue + 1)
+        setPageNum(prevValue => {
+            const nextNum = prevValue.length + 1
+            return [...prevValue, nextNum]
+        })
+        setCurrentPage(prevTotalPage => prevTotalPage + 1)
+        setInput(prevValue => {
+            return [
+                ...prevValue,
+                {
+                    symbol: '',
+                    avg: '',
+                    num: ''
+                }
+            ]
+        })
+    }
+
+    function resultClicked(event) {
+        const name = event.target.getAttribute('data-name')
+        const key = event.target.getAttribute('data-key')
+        const newSymbol = event.target.textContent
+        // console.log(name, key, newSymbol)
+        const updateInput = [...input]
+        
+        if (name === "symbol") {
+            updateInput[currentPage-1] = {
+                ...updateInput[currentPage-1],
+                [name]: newSymbol
+            }
+            setInput(updateInput)
+            
+        } else if (name === "curr") {
+            setCurrency({
+                    name: newSymbol,
+                    symbol: currArray[key].symbol   /////// 
+            })
+        }
+
+        setIsDeleted(prevValue => {
+            return {
+                ...prevValue,
+                [name]: true
+            }
+        })
+    }
 
     async function deletePage(event, page) {
         event.stopPropagation()
@@ -80,8 +138,64 @@ export default function Form({ coinArray, currArray }) {
         setInput(updateInput)
     }
 
+    function execute() {
+        setClicked(prevValue => prevValue + 1)
+    }
+
+    
+    useEffect(() => {
+        if (!hasRun.current) {
+            async function prepare() {
+                const response = await fetch('http://localhost:5000/get-session', {
+                    credentials: "include"
+                })
+                const result = await response.json()
+                if (Object.keys(result).length && !dataInject.length) {
+                    console.log("google data inject processing")
+                    const googleInject = result.body.data
+                    setGoogleDataInject(googleInject)
+                    setDataInject([])
+
+                    for (let i = 1; i < googleInject.length; i++) { // add page of the length of the inject data. except:1
+                        addPage()
+                    }
+    
+                    let newInput = [...input]
+                    googleInject.forEach(item => {
+                        const pageIndex = item.page-1   
+                        newInput[pageIndex] = {
+                            symbol: item.symbol,
+                            avg: item.average,
+                            num: item.amount
+                        }
+                    })
+                    setInput(newInput)
+                }
+            }
+            prepare()
+
+            if (dataInject.length && dataInject[0].page) { // data provided by login or signup ?
+                console.log("data inject processing")
+                for (let i = 1; i < dataInject.length; i++) { // add page of the length of the inject data. except:1
+                    addPage()
+                }
+
+                let newInput = [...input]
+                dataInject.forEach(item => {
+                    const pageIndex = item.page-1   
+                    newInput[pageIndex] = {
+                        symbol: item.symbol,
+                        avg: item.average,
+                        num: item.amount
+                    }
+                })
+                setInput(newInput)
+            }
+            hasRun.current = true;
+        }
+    }, []);
+
      // responsive coin search
-    const [searchResult, setSearchResult] = useState([])
     useEffect(() => {
         const currentInput = input[currentPage -1]
         if (currentInput && currentInput.symbol) {
@@ -90,43 +204,7 @@ export default function Form({ coinArray, currArray }) {
             setSearchResult(newResult)
         }
     }, [input[currentPage-1]?.symbol])
-
-
-    const [isDeleted, setIsDeleted] = useState({    // delete search result clicked
-        symbol: true,
-        curr: true
-    }) 
-    function resultClicked(event) {
-        const name = event.target.getAttribute('data-name')
-        const key = event.target.getAttribute('data-key')
-        const newSymbol = event.target.textContent
-        // console.log(name, key, newSymbol)
-        const updateInput = [...input]
-        
-        if (name === "symbol") {
-            updateInput[currentPage-1] = {
-                ...updateInput[currentPage-1],
-                [name]: newSymbol
-            }
-            setInput(updateInput)
-            
-        } else if (name === "curr") {
-            setCurrency({
-                    name: newSymbol,
-                    symbol: currArray[key].symbol   /////// 
-            })
-        }
-
-        setIsDeleted(prevValue => {
-            return {
-                ...prevValue,
-                [name]: true
-            }
-        })
-    }
-
     
-    const [clicked, setClicked] = useState(0) // for execute button
     useEffect(() => {
         if (clicked >= 1) {
             const allFilled = input.every(item => Object.values(item).every(value => value !== ''))
@@ -189,91 +267,10 @@ export default function Form({ coinArray, currArray }) {
         }
     }, [clicked]);
 
-    function execute() {
-        setClicked(prevValue => prevValue + 1)
-    }
-
-
-    function addPage() {    // for add button
-        setTotalPage(prevValue => prevValue + 1)
-        setPageNum(prevValue => {
-            const nextNum = prevValue.length + 1
-            return [...prevValue, nextNum]
-        })
-        setCurrentPage(prevTotalPage => prevTotalPage + 1)
-        setInput(prevValue => {
-            return [
-                ...prevValue,
-                {
-                    symbol: '',
-                    avg: '',
-                    num: ''
-                }
-            ]
-        })
-    }
-
-    const hasRun = useRef(false);
-
-    useEffect(() => {
-        if (!hasRun.current) {
-            async function prepare() {
-                const response = await fetch('http://localhost:5000/get-session', {
-                    credentials: "include"
-                })
-                const result = await response.json()
-                if (Object.keys(result).length !== 0) {
-                    const googleInject = result.body.data
-                    setGoogleDataInject(googleInject)
-                    setDataInject([])
-
-                    for (let i = 1; i < googleInject.length; i++) { // add page of the length of the inject data. except:1
-                        addPage()
-                    }
-    
-                    let newInput = [...input]
-                    googleInject.forEach(item => {
-                        const pageIndex = item.page-1   
-                        newInput[pageIndex] = {
-                            symbol: item.symbol,
-                            avg: item.average,
-                            num: item.amount
-                        }
-                    })
-                    setInput(newInput)
-                }
-            }
-            prepare()
-
-            if (dataInject && dataInject.length !== 0 && dataInject[0].page) { // data provided by login or signup ?
-                console.log("data inject processing")
-                for (let i = 1; i < dataInject.length; i++) { // add page of the length of the inject data. except:1
-                    addPage()
-                }
-
-                let newInput = [...input]
-                dataInject.forEach(item => {
-                    const pageIndex = item.page-1   
-                    newInput[pageIndex] = {
-                        symbol: item.symbol,
-                        avg: item.average,
-                        num: item.amount
-                    }
-                })
-                setInput(newInput)
-            }
-        
-            hasRun.current = true;
-        }
-    }, []);
-
-
 
     return (    
         <div className="form-container row">
-
             <div className="left-form">
-                
                 <div className="btn-group paging" role="group" aria-label="Basic outlined example">
                     <Button 
                         addClass={"btn-outline-secondary"}
@@ -358,11 +355,8 @@ export default function Form({ coinArray, currArray }) {
             </div>
 
             <div className="right-form">
-
                 <PnlBox dolars={pnl.dolars} currSymbol={currency.symbol} percent={pnl.percent}/>
-            
             </div>
-
         </div>       
     )
 }

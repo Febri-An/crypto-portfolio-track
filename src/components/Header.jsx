@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function Header() {
+
+    const [googleDataInject, setGoogleDataInject] = useState([]) 
+    
+    const location = useLocation()
     const navigate = useNavigate();
+    const dataInject = location.state?.body.data  || [{ username: 'Login' }]
+    
     const isStarting = useRef(true)
 
-    const location = useLocation()
-    const dataInject = location.state?.body.data  || [{ username: 'Login' }]
-    const [googleDataInject, setGoogleDataInject] = useState([])
 
     function goLink(event) {
         const { name } = event.target
@@ -18,6 +21,7 @@ export default function Header() {
         async function prepare() {
             if (isStarting.current) {
     
+                // get session data from backend
                 const response = await fetch('http://localhost:5000/get-session', {
                     credentials: "include"
                 })
