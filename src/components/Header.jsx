@@ -26,8 +26,8 @@ export default function Header() {
                     credentials: "include"
                 })
                 const result = await response.json()
-                if (Object.keys(result).length !== 0) {
-                    setGoogleDataInject(result.body.data)
+                if (Object.keys(result).length) {
+                    setGoogleDataInject(result.body.data || result.body.user)
                 }
             }
         }

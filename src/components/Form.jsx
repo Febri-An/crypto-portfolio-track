@@ -152,24 +152,28 @@ export default function Form({ coinArray, currArray }) {
                 const result = await response.json()
                 if (Object.keys(result).length && !dataInject.length) {
                     console.log("google data inject processing")
-                    const googleInject = result.body.data
+                    const googleInject = result.body.data || result.body.user
                     setGoogleDataInject(googleInject)
                     setDataInject([])
 
-                    for (let i = 1; i < googleInject.length; i++) { // add page of the length of the inject data. except:1
-                        addPage()
-                    }
-    
-                    let newInput = [...input]
-                    googleInject.forEach(item => {
-                        const pageIndex = item.page-1   
-                        newInput[pageIndex] = {
-                            symbol: item.symbol,
-                            avg: item.average,
-                            num: item.amount
+                    if (result.body.data) {
+                        console.log('result.body.data founded')
+                        // add page of the length of the inject data. except:1
+                        for (let i = 1; i < googleInject.length; i++) { 
+                            addPage()
                         }
-                    })
-                    setInput(newInput)
+        
+                        let newInput = [...input]
+                        googleInject.forEach(item => {
+                            const pageIndex = item.page-1   
+                            newInput[pageIndex] = {
+                                symbol: item.symbol,
+                                avg: item.average,
+                                num: item.amount
+                            }
+                        })
+                        setInput(newInput)
+                    }
                 }
             }
             prepare()
